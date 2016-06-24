@@ -31,7 +31,7 @@ def salted_hmac(key_salt, value, secret=None):
     :rtype: HMAC
     """
     if secret is None:
-        secret = settings.SECRET_KEY
+        secret = settings.CRYPTOGRAPHY_KEY
 
     key_salt = force_bytes(key_salt)
     secret = force_bytes(secret)
