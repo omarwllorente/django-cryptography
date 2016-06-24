@@ -10,7 +10,8 @@ import zlib
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.hmac import HMAC
-from django.conf import settings
+from ..conf import CryptographyConf
+settings = CryptographyConf()
 from django.core.signing import (
     BadSignature, SignatureExpired, b64_encode, b64_decode,
     get_cookie_signer, JSONSerializer
@@ -90,7 +91,7 @@ def loads(s, key=None, salt='django.core.signing', serializer=JSONSerializer, ma
 class Signer(object):
     def __init__(self, key=None, sep=':', salt=None):
         # Use of native strings in all versions of Python
-        self.key = key or settings.SECRET_KEY
+        self.key = force_bytes(key or settings.CRYPTOGRAPHY_KEY)
         self.sep = force_str(sep)
         if _SEP_UNSAFE.match(self.sep):
             raise ValueError(
@@ -151,7 +152,7 @@ class BytesSigner(Signer):
     def __init__(self, key=None, salt=None):
         digest = settings.CRYPTOGRAPHY_DIGEST
         self._digest_size = digest.digest_size
-        self.key = key or settings.SECRET_KEY
+        self.key = force_bytes(key or settings.CRYPTOGRAPHY_KEY)
         self.salt = force_str(salt or '%s.%s' % (
             self.__class__.__module__, self.__class__.__name__))
 
@@ -179,8 +180,8 @@ class FernetSigner(Signer):
         :type key: any
         :rtype: None
         """
-        self.digest = hashes.SHA256()
-        self.key = force_bytes(key or settings.SECRET_KEY)
+        self.digest = settings.CRYPTOGRAPHY_DIGEST
+        self.key = force_bytes(key or settings.CRYPTOGRAPHY_KEY)
 
     def signature(self, value):
         """
