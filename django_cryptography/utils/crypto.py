@@ -30,11 +30,9 @@ def salted_hmac(salt, value, secret=None):
     :type secret: any
     :rtype: HMAC
     """
-    if secret is None:
-        secret = settings.CRYPTOGRAPHY_KEY
 
     salt = force_bytes(salt)
-    secret = force_bytes(secret)
+    secret = force_bytes(secret or settings.CRYPTOGRAPHY_KEY)
 
     # We need to generate a derived key from our base key.  We can do this by
     # passing the salt and our base key through a pseudo-random function and
