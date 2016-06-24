@@ -24,8 +24,8 @@ class TestUtilsCryptoMisc(unittest.TestCase):
     @override_settings(CRYPTOGRAPHY_DIGEST=hashes.SHA1())
     def test_django_hmac_parity(self):
         django_hmac = django_salted_hmac(self.salt, self.value)
-        cryptography_hmac = salted_hmac(self.salt, self.value)
-
+        cryptography_hmac = salted_hmac(self.salt, self.value, settings.SECRET_KEY)
+        
         self.assertEqual(django_hmac.digest(), cryptography_hmac.finalize())
 
     def test_constant_time_compare(self):
