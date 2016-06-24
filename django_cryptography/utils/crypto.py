@@ -99,11 +99,11 @@ class FernetBytes(object):
     """
 
     def __init__(self, key=None, signer=None):
+        self._backend = settings.CRYPTOGRAPHY_BACKEND
+        self._encryption_key = force_bytes(key or settings.CRYPTOGRAPHY_KEY)
         if signer is None:
             from ..core.signing import FernetSigner
-            signer = FernetSigner()
-        self._backend = settings.CRYPTOGRAPHY_BACKEND
-        self._encryption_key = key or settings.CRYPTOGRAPHY_KEY
+            signer = FernetSigner(self._encryption_key)
         self._signer = signer
 
     def encrypt(self, data):
