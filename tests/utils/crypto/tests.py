@@ -207,6 +207,12 @@ class FernetBytesTestCase(unittest.TestCase):
         self.assertEqual(binascii.hexlify(result).decode('ascii'),
             '3af94f1c73e82b00d41d2db759b54af2e31c55dc97a51c3c3ae8b83eb46dd2b8')
 
+    @override_settings(SECRET_KEY=b'test_key')
+    @override_settings(CRYPTOGRAPHY_DIGEST=hashes.SHA256())
+    @override_settings(CRYPTOGRAPHY_SALT=b'salted_hmac')
+    @override_settings(CRYPTOGRAPHY_BACKEND=default_backend())
+    @override_settings(CRYPTOGRAPHY_KEY=pbkdf2(settings.SECRET_KEY, settings.CRYPTOGRAPHY_SALT, 30000, 
+        settings.CRYPTOGRAPHY_DIGEST.digest_size, settings.CRYPTOGRAPHY_DIGEST))
     def test_encrypt_decrypt(self):
         value = b'hello'
         iv = b'0123456789abcdef'
@@ -214,7 +220,7 @@ class FernetBytesTestCase(unittest.TestCase):
                 'ddaec2d74fb4ff565280abdc39baf116e80f116496cde9515bd7d938e5c74'
                 'd60bc186286e701ba4fb4004')
         with freeze_time(123456789):
-            fernet = FernetBytes()
+            fernet = FernetBytes(settings.CRYPTOGRAPHY_KEY, FernetSigner(settings.SECRET_KEY))
             self.assertEqual(fernet._encrypt_from_parts(value, iv),
                              binascii.unhexlify(data))
             self.assertEqual(fernet.decrypt(binascii.unhexlify(data)), value)
