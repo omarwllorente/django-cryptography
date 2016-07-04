@@ -27,6 +27,11 @@ class CryptographyConf(AppConf):
     else:
         SALT = settings.CRYPTOGRAPHY_SALT
 
+    if not hasattr(settings, 'CRYPTOGRAPHY_SIGNINGKEY'):
+        SIGNINGKEY = None
+    else:
+        SIGNINGKEY = settings.CRYPTOGRAPHY_SIGNINGKEY
+
     class Meta:
         prefix = 'cryptography'
         proxy = True
@@ -49,4 +54,14 @@ class CryptographyConf(AppConf):
         self.configured_data['KEY'] = kdf.derive(
             force_bytes(self.configured_data['KEY'] or settings.SECRET_KEY)
         )
+        # In order to keep parity with django signing functions, SIGNINGKEY defaults to SECRET_KEY
+        if self.configured_data['SIGNINGKEY'] == None:
+            self.configured_data['SIGNINGKEY'] = force_bytes(settings.SECRET_KEY)
+        else:
+            if self.configured_data['SIGNINGKEY'] == 'SECRET_KEY':
+                self.configured_data['SIGNINGKEY'] = force_bytes(settings.SECRET_KEY)
+            elif self.configured_data['SIGNINGKEY'] == 'CRYPTOGRAPHY_KEY':
+                self.configured_data['SIGNINGKEY'] = self.configured_data['KEY']
+            else:
+                SIGNINGKEY = force_bytes(settings.CRYPTOGRAPHY_SIGNINGKEY)
         return self.configured_data
