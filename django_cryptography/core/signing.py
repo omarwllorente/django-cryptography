@@ -38,7 +38,7 @@ def base64_hmac(salt, value, key):
 def dumps(obj, key=None, salt='django.core.signing', serializer=JSONSerializer, compress=False):
     """
     Returns URL-safe, sha1 signed base64 compressed JSON string. If key is
-    None, settings.CRYPTOGRAPHY_KEY is used instead.
+    None, settings.CRYPTOGRAPHY_SIGNINGKEY is used instead.
 
     If compress is True (not the default) checks if compressing using zlib can
     save some space. Prepends a '.' to signify compression. This is included
@@ -91,7 +91,7 @@ def loads(s, key=None, salt='django.core.signing', serializer=JSONSerializer, ma
 class Signer(object):
     def __init__(self, key=None, sep=':', salt=None):
         # Use of native strings in all versions of Python
-        self.key = force_bytes(key or settings.CRYPTOGRAPHY_KEY)
+        self.key = force_bytes(key or settings.CRYPTOGRAPHY_SIGNINGKEY)
         self.sep = force_str(sep)
         if _SEP_UNSAFE.match(self.sep):
             raise ValueError(
@@ -152,7 +152,7 @@ class BytesSigner(Signer):
     def __init__(self, key=None, salt=None):
         digest = settings.CRYPTOGRAPHY_DIGEST
         self._digest_size = digest.digest_size
-        self.key = force_bytes(key or settings.CRYPTOGRAPHY_KEY)
+        self.key = force_bytes(key or settings.CRYPTOGRAPHY_SIGNINGKEY)
         self.salt = force_str(salt or '%s.%s' % (
             self.__class__.__module__, self.__class__.__name__))
 
@@ -181,7 +181,7 @@ class FernetSigner(Signer):
         :rtype: None
         """
         self.digest = settings.CRYPTOGRAPHY_DIGEST
-        self.key = force_bytes(key or settings.CRYPTOGRAPHY_KEY)
+        self.key = force_bytes(key or settings.CRYPTOGRAPHY_SIGNINGKEY)
 
     def signature(self, value):
         """
