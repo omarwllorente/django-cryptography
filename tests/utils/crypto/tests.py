@@ -208,6 +208,7 @@ class FernetBytesTestCase(unittest.TestCase):
             '3af94f1c73e82b00d41d2db759b54af2e31c55dc97a51c3c3ae8b83eb46dd2b8')
 
     @override_settings(SECRET_KEY=b'test_key')
+    @override_settings(CRYPTOGRAPHY_SIGNINGKEY=b'test_key')
     @override_settings(CRYPTOGRAPHY_DIGEST=hashes.SHA256())
     @override_settings(CRYPTOGRAPHY_SALT=b'salted_hmac')
     @override_settings(CRYPTOGRAPHY_BACKEND=default_backend())
@@ -220,12 +221,13 @@ class FernetBytesTestCase(unittest.TestCase):
                 'ddaec2d74fb4ff565280abdc39baf116e80f116496cde9515bd7d938e5c74'
                 'd60bc186286e701ba4fb4004')
         with freeze_time(123456789):
-            fernet = FernetBytes(settings.CRYPTOGRAPHY_KEY, FernetSigner(settings.SECRET_KEY))
+            fernet = FernetBytes()
             self.assertEqual(fernet._encrypt_from_parts(value, iv),
                              binascii.unhexlify(data))
             self.assertEqual(fernet.decrypt(binascii.unhexlify(data)), value)
 
     @override_settings(SECRET_KEY=b'test_key')
+    @override_settings(CRYPTOGRAPHY_SIGNINGKEY=b'test_key')
     @override_settings(CRYPTOGRAPHY_DIGEST=hashes.SHA256())
     @override_settings(CRYPTOGRAPHY_SALT=b'salted_hmac')
     @override_settings(CRYPTOGRAPHY_BACKEND=default_backend())
@@ -236,11 +238,12 @@ class FernetBytesTestCase(unittest.TestCase):
                 'ddaec2d74fb4ff565d549d94cc75de940d1d25507f30763f05c412390d15d'
                 'a26bccee69f1b4543e75')
         with freeze_time(123456789):
-            fernet = FernetBytes(settings.CRYPTOGRAPHY_KEY, FernetSigner(settings.SECRET_KEY))
+            fernet = FernetBytes()
             with self.assertRaises(InvalidToken):
                 fernet.decrypt(binascii.unhexlify(data))
 
     @override_settings(SECRET_KEY=b'test_key')
+    @override_settings(CRYPTOGRAPHY_SIGNINGKEY=b'test_key')
     @override_settings(CRYPTOGRAPHY_DIGEST=hashes.SHA256())
     @override_settings(CRYPTOGRAPHY_SALT=b'salted_hmac')
     @override_settings(CRYPTOGRAPHY_BACKEND=default_backend())
@@ -251,7 +254,7 @@ class FernetBytesTestCase(unittest.TestCase):
                 '8f001b78b5a77b334b40fbbff559444b3325233e71c24e53f6028116b0377'
                 'b910ebe5498396de36dee59b')
         with freeze_time(123456789):
-            fernet = FernetBytes(settings.CRYPTOGRAPHY_KEY, FernetSigner(settings.SECRET_KEY))
+            fernet = FernetBytes()
             with self.assertRaises(InvalidToken):
                 fernet.decrypt(binascii.unhexlify(data))
 
