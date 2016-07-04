@@ -21,7 +21,7 @@ class InvalidToken(Exception):
 def salted_hmac(salt, value, secret=None):
     """
     Returns the HMAC-HASH of 'value', using a key generated from salt and a
-    secret (which defaults to settings.CRYPTOGRAPHY_KEY).
+    secret (which defaults to settings.CRYPTOGRAPHY_SIGNINGKEY).
 
     A different salt should be passed in for every application of HMAC.
 
@@ -32,7 +32,7 @@ def salted_hmac(salt, value, secret=None):
     """
 
     salt = force_bytes(salt)
-    secret = force_bytes(secret or settings.CRYPTOGRAPHY_KEY)
+    secret = force_bytes(secret or settings.CRYPTOGRAPHY_SIGNINGKEY)
 
     # We need to generate a derived key from our base key.  We can do this by
     # passing the salt and our base key through a pseudo-random function and
@@ -101,7 +101,7 @@ class FernetBytes(object):
         self._encryption_key = force_bytes(key or settings.CRYPTOGRAPHY_KEY)
         if signer is None:
             from ..core.signing import FernetSigner
-            signer = FernetSigner(self._encryption_key)
+            signer = FernetSigner()
         self._signer = signer
 
     def encrypt(self, data):
